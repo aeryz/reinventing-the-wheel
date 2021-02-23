@@ -1,15 +1,26 @@
 #include "str/rtw_str.h"
+#include "vec/rtw_vec.h"
 #include <stdio.h>
+#include <unistd.h>
+
+void bench_heap() {
+    rtw_str s1 = rtw_str_new_heap("seleme");
+    rtw_str s2 = rtw_str_new_heap(" aleme");
+
+    rtw_str_concat_heap(&s1, &s2);
+}
+
+void bench_stack() {
+    rtw_str s1, s2;
+    rtw_str_from("seleme", &s1);
+    rtw_str_from(" aleme", &s2);
+
+    rtw_str_concat(&s1, &s2);
+}
 
 int main() {
-    rtw_str str1;
-    rtw_str str2;
-    rtw_str_from("selameke", &str1);
-    rtw_str_from("cool and very very very long strrrssss", &str2);
-    rtw_str_debug(&str1);
-    rtw_str_debug(&str2);
-    rtw_str_concat(&str1, &str2);
-    rtw_str_debug(&str1);
-    rtw_str_concat(&str2, &str1);
-    rtw_str_debug(&str2);
+    for (int i = 0; i < 9999999; ++i)
+        bench_stack();
+
+    sleep(1000);
 }

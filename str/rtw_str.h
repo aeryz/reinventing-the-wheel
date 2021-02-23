@@ -25,6 +25,10 @@ typedef struct {
 	rtw_str_data data;
 } rtw_str;
 
+rtw_str rtw_str_new_heap(const char *str);
+
+void rtw_str_concat_heap(rtw_str *self, const rtw_str *other);
+
 rtw_str rtw_str_new();
 
 int rtw_str_from(char* data, rtw_str* out);
