@@ -18,9 +18,4 @@ void bench_stack() {
     rtw_str_concat(&s1, &s2);
 }
 
-int main() {
-    for (int i = 0; i < 9999999; ++i)
-        bench_stack();
-
-    sleep(1000);
-}
+int main() { printf("%ld\n", sizeof(rtw_str)); }

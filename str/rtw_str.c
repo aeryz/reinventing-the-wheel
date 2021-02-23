@@ -4,7 +4,7 @@
 
 rtw_str rtw_str_new_heap(const char *str) {
     rtw_str heap_str;
-    heap_str.type = HEAP;
+    heap_str.type = HEAP_STR;
     rtw_str_data data;
     size_t len = strlen(str);
     data.heap_str.data = (char *)malloc(len + 1);
@@ -31,7 +31,7 @@ rtw_str rtw_str_new() {
     rtw_str str;
     rtw_str_data data;
     memset(data.stack_str, 0, sizeof(data.stack_str));
-    str.type = STACK;
+    str.type = STACK_STR;
     str.data = data;
     return str;
 }
@@ -39,7 +39,7 @@ rtw_str rtw_str_new() {
 int rtw_str_from(char *data, rtw_str *out) {
     size_t len = strlen(data);
     if (len > sizeof(rtw_heap_str) - 1) {
-        out->type = HEAP;
+        out->type = HEAP_STR;
         rtw_heap_str str;
         str.data = (char *)malloc(len + 1);
         strncpy(str.data, data, len);
@@ -58,14 +58,14 @@ int rtw_str_from(char *data, rtw_str *out) {
 }
 
 char *rtw_str_get_data(rtw_str *self) {
-    if (self->type == HEAP)
+    if (self->type == HEAP_STR)
         return self->data.heap_str.data;
     else
         return self->data.stack_str;
 }
 
 size_t rtw_str_len(rtw_str *self) {
-    if (self->type == HEAP)
+    if (self->type == HEAP_STR)
         return self->data.heap_str.len;
     else
         return sizeof(self->data) -
@@ -76,7 +76,7 @@ int rtw_str_concat(rtw_str *self, rtw_str *other) {
     char *other_str = rtw_str_get_data(other);
     size_t other_len = rtw_str_len(other);
     size_t self_len = rtw_str_len(self);
-    if (self->type == HEAP) {
+    if (self->type == HEAP_STR) {
         rtw_heap_str *self_str = &self->data.heap_str;
         if (self_len + other_len > self_str->capacity) {
             char *new_ptr =
@@ -102,7 +102,7 @@ int rtw_str_concat(rtw_str *self, rtw_str *other) {
             strncpy(str.data + self_len, other_str, other_len);
             str.capacity = self_len + other_len;
             str.len = str.capacity;
-            self->type = HEAP;
+            self->type = HEAP_STR;
             self->data.heap_str = str;
         } else {
             char *self_ptr = self->data.stack_str;
@@ -115,7 +115,7 @@ int rtw_str_concat(rtw_str *self, rtw_str *other) {
 }
 
 void rtw_str_debug(rtw_str *self) {
-    if (self->type == HEAP)
+    if (self->type == HEAP_STR)
         printf("%s\n", self->data.heap_str.data);
     else
         printf("%s\n", self->data.stack_str);
