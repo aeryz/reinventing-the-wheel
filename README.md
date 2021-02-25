@@ -1,6 +1,6 @@
 # Re-inventing The Wheel
 
-- String (with SSO) [x]
-- Vector [ ]
-- Array  [ ]
-- Hash Map [ ]
+- [x] String (with SSO)
+- [ ] Vector
+- [ ] Array
+- [ ] Hash Map
