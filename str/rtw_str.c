@@ -77,12 +77,21 @@ size_t rtw_str_capacity(const rtw_str *self) {
         return sizeof(self->data.heap_str);
 }
 
-// TODO: unimpl
 int rtw_str_reserve(rtw_str *self, size_t n) {
     if (rtw_str_capacity(self) > n) {
         return 0;
     }
-    return 1;
+    rtw_heap_str str;
+    str.len = rtw_str_len(self);
+    str.capacity = n;
+    str.data = (char *)malloc(n + 1);
+    if (!str.data)
+        return -1;
+    strncpy(str.data, rtw_str_data(self), str.len);
+    if (self->type == HEAP_STR && self->data.heap_str.data)
+        free(self->data.heap_str.data);
+    self->data.heap_str = str;
+    return 0;
 }
 
 void rtw_str_clear(rtw_str *self) {
@@ -93,7 +102,7 @@ void rtw_str_clear(rtw_str *self) {
         self->data.heap_str.len = 0;
     } else {
         self->data.stack_str[0] = '\0';
-        self->data.stack_str[RTW_STR_SS - 1] = sizeof(rtw_heap_str) - 1;
+        self->data.stack_str[RTW_STR_SS - 1] = RTW_STR_SS - 1;
     }
 }
 
@@ -126,11 +135,17 @@ char rtw_str_at(rtw_str *self, size_t n) {
     }
 }
 
-// TODO: unimpl
-int rtw_str_push_back(rtw_str *self, char c) { return 0; }
+int rtw_str_push_back(rtw_str *self, char c) {
+    char c_str[2] = {c, '\0'};
+    rtw_str tmp = rtw_str_new();
+    tmp.data.stack_str[0] = c;
+    return rtw_str_concat(self, &tmp);
+}
 
-// TODO: unimpl
-int rtw_str_copy(rtw_str *self, const rtw_str *other);
+int rtw_str_copy(rtw_str *self, const rtw_str *other) {
+    rtw_str_free(self);
+    return rtw_str_concat(self, other);
+}
 
 char rtw_str_pop_back(rtw_str *self) {
     if (rtw_str_empty(self)) {
@@ -159,33 +174,6 @@ const char *rtw_str_data(const rtw_str *self) {
 int rtw_str_compare(const rtw_str *self, const rtw_str *other) {
     return strcmp(rtw_str_data(self), rtw_str_data(other));
 }
-
-/* Benches */
-rtw_str rtw_str_new_heap(const char *str) {
-    rtw_str heap_str;
-    heap_str.type = HEAP_STR;
-    rtw_str_data_ data;
-    size_t len = strlen(str);
-    data.heap_str.data = (char *)malloc(len + 1);
-    data.heap_str.len = len;
-    data.heap_str.capacity = len;
-    strncpy(data.heap_str.data, str, len);
-    heap_str.data = data;
-    return heap_str;
-}
-
-void rtw_str_concat_heap(rtw_str *self, const rtw_str *other) {
-    rtw_heap_str *self_str = &self->data.heap_str;
-    const rtw_heap_str *other_str = &other->data.heap_str;
-    if (self_str->len + other_str->len > self_str->capacity) {
-        self_str->data =
-            (char *)realloc(self_str->data, self_str->len + other_str->len + 1);
-    }
-    strncpy(self_str->data + self_str->len, other_str->data, other_str->len);
-    self_str->len += other_str->len;
-    self_str->capacity += other_str->len;
-}
-/* Benches end */
 
 /* Private implementations */
 int _rtw_str_grow_heap_str(rtw_heap_str *str, const char *data, size_t len) {
