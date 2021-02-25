@@ -12,10 +12,12 @@ void bench_heap() {
 
 void bench_stack() {
     rtw_str s1, s2;
-    rtw_str_from("seleme", &s1);
+    rtw_str_from("selemesdkjskdjskdskd sdkjskdkjsd", &s1);
     rtw_str_from(" aleme", &s2);
 
     rtw_str_concat(&s1, &s2);
+
+    printf("%s\n", rtw_str_data(&s1));
 }
 
-int main() { printf("%ld\n", sizeof(rtw_str)); }
+int main() { bench_stack(); }

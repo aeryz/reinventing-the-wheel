@@ -3,6 +3,9 @@
 
 #include <stdlib.h>
 
+// Stack size of 'str'.
+#define RTW_STR_SS sizeof(rtw_heap_str)
+
 typedef struct {
     char *data;
     size_t len;
@@ -11,7 +14,7 @@ typedef struct {
 
 typedef union {
     rtw_heap_str heap_str;
-    char stack_str[sizeof(rtw_heap_str)];
+    char stack_str[RTW_STR_SS];
 } rtw_str_data_;
 
 typedef enum { HEAP_STR, STACK_STR } rtw_str_type;
@@ -26,6 +29,9 @@ rtw_str rtw_str_new();
 
 /** Creates a string from the given char*. */
 int rtw_str_from(const char *data, rtw_str *out);
+
+/** Frees the allocated memory. Data becomes NULL. */
+void rwt_str_free(rtw_str *self);
 
 /** Adds 'other' to 'self'. */
 int rtw_str_concat(rtw_str *self, const rtw_str *other);
@@ -70,11 +76,5 @@ const char *rtw_str_data(const rtw_str *self);
 
 /** Wrapper of 'strcmp'. */
 int rtw_str_compare(const rtw_str *self, const rtw_str *other);
-
-// For benches
-
-rtw_str rtw_str_new_heap(const char *str);
-
-void rtw_str_concat_heap(rtw_str *self, const rtw_str *other);
 
 #endif
