@@ -14,6 +14,7 @@ rtw_str rtw_str_new() {
     rtw_str str;
     rtw_str_data_ data;
     memset(data.stack_str, 0, sizeof(data.stack_str));
+    data.stack_str[RTW_STR_SS - 1] = RTW_STR_SS - 1;
     str.type = STACK_STR;
     str.data = data;
     return str;
@@ -58,6 +59,12 @@ int rtw_str_concat(rtw_str *self, const rtw_str *other) {
                                              rtw_str_data(other), other_len))) {
                 return rc;
             }
+            *self = new_str;
+        } else {
+            strncpy(self->data.stack_str + self_len, rtw_str_data(other),
+                    other_len);
+            self->data.stack_str[RTW_STR_SS - 1] =
+                RTW_STR_SS - self_len - other_len - 1;
         }
     }
     return 0;
