@@ -31,10 +31,10 @@ int rtw_str_from(const char *data, rtw_str *out) {
 
 void rtw_str_free(rtw_str *self) {
     rtw_heap_str *str = &self->data.heap_str;
-    if (self->type == STACK_STR) {
+    if (STACK_STR == self->type) {
         self->type = HEAP_STR;
     } else {
-        if (str->data == NULL)
+        if (NULL == str->data)
             return;
         free(str->data);
     }
@@ -44,7 +44,7 @@ void rtw_str_free(rtw_str *self) {
 }
 
 int rtw_str_concat(rtw_str *self, const rtw_str *other) {
-    if (self->type == HEAP_STR) {
+    if (HEAP_STR == self->type) {
         _rtw_str_grow_heap_str(&self->data.heap_str, rtw_str_data(other),
                                rtw_str_len(other));
     } else {
@@ -62,7 +62,7 @@ int rtw_str_concat(rtw_str *self, const rtw_str *other) {
             *self = new_str;
         } else {
             strncpy(self->data.stack_str + self_len, rtw_str_data(other),
-                    other_len);
+                    other_len + 1);
             self->data.stack_str[RTW_STR_SS - 1] =
                 RTW_STR_SS - self_len - other_len - 1;
         }
@@ -71,14 +71,14 @@ int rtw_str_concat(rtw_str *self, const rtw_str *other) {
 }
 
 size_t rtw_str_len(const rtw_str *self) {
-    if (self->type == HEAP_STR)
+    if (HEAP_STR == self->type)
         return self->data.heap_str.len;
     else
         return sizeof(self->data) - self->data.stack_str[RTW_STR_SS - 1] - 1;
 }
 
 size_t rtw_str_capacity(const rtw_str *self) {
-    if (self->type == HEAP_STR)
+    if (HEAP_STR == self->type)
         return self->data.heap_str.capacity;
     else
         return sizeof(self->data.heap_str);
@@ -94,8 +94,8 @@ int rtw_str_reserve(rtw_str *self, size_t n) {
     str.data = (char *)malloc(n + 1);
     if (!str.data)
         return -1;
-    strncpy(str.data, rtw_str_data(self), str.len);
-    if (self->type == HEAP_STR && self->data.heap_str.data)
+    strncpy(str.data, rtw_str_data(self), str.len + 1);
+    if (HEAP_STR == self->type && NULL != self->data.heap_str.data)
         free(self->data.heap_str.data);
     self->data.heap_str = str;
     return 0;
@@ -104,7 +104,7 @@ int rtw_str_reserve(rtw_str *self, size_t n) {
 void rtw_str_clear(rtw_str *self) {
     if (rtw_str_empty(self))
         return;
-    if (self->type == HEAP_STR) {
+    if (HEAP_STR == self->type) {
         self->data.heap_str.data[0] = '\0';
         self->data.heap_str.len = 0;
     } else {
@@ -114,14 +114,14 @@ void rtw_str_clear(rtw_str *self) {
 }
 
 int rtw_str_empty(const rtw_str *self) {
-    if (self->type == HEAP_STR)
+    if (HEAP_STR == self->type)
         return self->data.heap_str.len == 0;
     else
-        return self->data.stack_str[RTW_STR_SS - 1] == RTW_STR_SS - 1;
+        return RTW_STR_SS == self->data.stack_str[RTW_STR_SS - 1];
 }
 
 int rtw_str_shrink_to_fit(rtw_str *self) {
-    if (self->type == STACK_STR ||
+    if (STACK_STR == self->type ||
         self->data.heap_str.len == self->data.heap_str.capacity) {
         return 0;
     }
@@ -134,7 +134,7 @@ int rtw_str_shrink_to_fit(rtw_str *self) {
     return 0;
 }
 
-char rtw_str_at(rtw_str *self, size_t n) {
+char rtw_str_at(const rtw_str *self, size_t n) {
     if (rtw_str_len(self) < n) {
         return 0;
     } else {
@@ -159,7 +159,7 @@ char rtw_str_pop_back(rtw_str *self) {
         return '\0';
     }
     char ret;
-    if (self->type == HEAP_STR) {
+    if (HEAP_STR == self->type) {
         ret = self->data.heap_str.data[self->data.heap_str.len - 1];
         self->data.heap_str.data[self->data.heap_str.len-- - 1] = '\0';
     } else {
@@ -172,7 +172,7 @@ char rtw_str_pop_back(rtw_str *self) {
 }
 
 const char *rtw_str_data(const rtw_str *self) {
-    if (self->type == HEAP_STR)
+    if (HEAP_STR == self->type)
         return self->data.heap_str.data;
     else
         return self->data.stack_str;
@@ -189,11 +189,11 @@ int _rtw_str_grow_heap_str(rtw_heap_str *str, const char *data, size_t len) {
         if (!new_ptr)
             return -1;
         str->data = new_ptr;
-        strncpy(str->data + str->len, data, len);
+        strncpy(str->data + str->len, data, len + 1);
         str->capacity = str->len + len;
         str->len = str->capacity;
     } else {
-        strncpy(str->data + str->len, data, len);
+        strncpy(str->data + str->len, data, len + 1);
         str->len += len;
     }
     return 0;
@@ -203,7 +203,7 @@ int _rtw_str_heap_from(const char *data, size_t len, rtw_str *out) {
     out->type = HEAP_STR;
     rtw_heap_str str;
     str.data = (char *)malloc(len + 1);
-    strncpy(str.data, data, len);
+    strncpy(str.data, data, len + 1);
     str.capacity = len;
     str.len = len;
     if (!str.data)
@@ -214,7 +214,7 @@ int _rtw_str_heap_from(const char *data, size_t len, rtw_str *out) {
 
 int _rtw_str_stack_from(const char *data, size_t len, rtw_str *out) {
     *out = rtw_str_new();
-    strncpy(out->data.stack_str, data, len);
+    strncpy(out->data.stack_str, data, len + 1);
     out->data.stack_str[sizeof(out->data) - 1] = sizeof(out->data) - len - 1;
     return 0;
 }

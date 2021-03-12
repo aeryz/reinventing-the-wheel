@@ -59,7 +59,7 @@ int rtw_str_shrink_to_fit(rtw_str *self);
 
 /** Returns the 'n'th character of 'self'. Returns '\0' if 'n' exceeds the size
  * of 'self'. */
-char rtw_str_at(rtw_str *self, size_t n);
+char rtw_str_at(const rtw_str *self, size_t n);
 
 /** Appends 'c' to 'self'. */
 int rtw_str_push_back(rtw_str *self, char c);
