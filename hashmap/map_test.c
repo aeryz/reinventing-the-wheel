@@ -30,6 +30,7 @@ void test_map_str_to_int(struct HashMap* map_str_to_int)
     insert_key(map_str_to_int, "abf",1);
     insert_key(map_str_to_int, "acd",2);
     insert_key(map_str_to_int, "asdasd",3);
+    insert_key(map_str_to_int, "kaan",5);
     insert_key(map_str_to_int, "kaan",4);
     insert_key(map_str_to_int, "map_str_to_int",5);
 

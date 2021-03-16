@@ -68,6 +68,7 @@ void insert_key(struct HashMap *map, void *key, void *data) {
     {
         if(map->comp_func(key, last->key))
         {
+            free(item);
             last->data = data;
             return;
         }
