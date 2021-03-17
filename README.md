@@ -1,6 +1,12 @@
 # Re-inventing The Wheel
 
-- [x] String (with SSO)
-- [ ] Vector
-- [ ] Array
-- [ ] Hash Map
+# Done
+- String (with SSO)
+
+# In Progres
+- Hash Map
+- Binary Set
+- Vector
+
+# Planned
+- Hash Set
