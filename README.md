@@ -3,7 +3,7 @@
 # Done
 - String (with SSO)
 
-# In Progres
+# In Progress
 - Hash Map
 - Binary Set
 - Vector
