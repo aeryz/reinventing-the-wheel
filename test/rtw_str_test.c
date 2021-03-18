@@ -1,5 +1,5 @@
-#include "../str/rtw_str.h"
 #include "test.h"
+#include "../str/rtw_str.h"
 #include <stdio.h>
 
 const char *STACK_DATA = "stack_str";
@@ -8,7 +8,7 @@ const char *SNH_DATA = "stack_strheap_str heap_str heap_str heap_str";
 
 RTW_TEST_NAME(STR);
 
-RTW_TEST(str_from) {
+TIM_TEST(str_from) {
     rtw_str str;
     RTW_ASSERT_EQ(rtw_str_from(STACK_DATA, &str), 0);
 
@@ -28,7 +28,7 @@ RTW_TEST(str_from) {
     RTW_TEST_SUCCESS;
 }
 
-RTW_TEST(str_concat) {
+TIM_TEST(str_concat) {
     rtw_str empty_str = rtw_str_new();
 
     rtw_str stack_str;
@@ -43,22 +43,11 @@ RTW_TEST(str_concat) {
     RTW_ASSERT_EQ(rtw_str_len(&empty_str), strlen(STACK_DATA));
     RTW_ASSERT_EQ_STR(rtw_str_data(&empty_str), STACK_DATA);
 
-    // 'empty_str' should now be a heap str.
+    // 'empty_strs should now be a heap str.
     RTW_ASSERT_EQ(rtw_str_concat(&empty_str, &heap_str), 0);
     RTW_ASSERT_EQ(empty_str.type, HEAP_STR);
     RTW_ASSERT_EQ(rtw_str_len(&empty_str), strlen(SNH_DATA));
     RTW_ASSERT_EQ_STR(rtw_str_data(&empty_str), SNH_DATA);
 
     RTW_TEST_SUCCESS;
-}
-
-int main() {
-    rtw_test_res_t res = str_from();
-    if (!res.success) {
-        printf("File: %s, Line: %ld\n", res.file, res.line);
-    }
-    res = str_concat();
-    if (!res.success) {
-        printf("File: %s, Line: %ld\n", res.file, res.line);
-    }
 }

@@ -3,21 +3,44 @@
 #include <stdio.h>
 #include <unistd.h>
 
-void bench_heap() {
-    rtw_str s1 = rtw_str_new_heap("seleme");
-    rtw_str s2 = rtw_str_new_heap(" aleme");
+typedef struct {
+    int X;
+    int Y;
+    int Z;
+} Vec3;
 
-    rtw_str_concat_heap(&s1, &s2);
+int main() {
+
+    Vec3 v;
+    v.X = 1;
+    v.Y = 2;
+    v.Z = 3;
+
+    rtw_vec vec = rtw_vec_init(sizeof(Vec3));
+
+    for (int i = 0; i < 10; ++i) {
+        rtw_vec_push_back(&vec, &v);
+    }
+
+    ((Vec3 *)rtw_vec_get(&vec, vec.len - 1))->X = 25;
+    Vec3 testV = *((Vec3 *)rtw_vec_get(&vec, vec.len - 1));
+    testV.Z = 2323;
+    rtw_vec_push_back(&vec, &testV);
+
+    Vec3 *ptr = rtw_vec_data(&vec);
+    for (int i = 0; i < vec.len; ++i) {
+        ptr = rtw_vec_get(&vec, i);
+        printf("Vec: %d %d %d\n", ptr->X, ptr->Y, ptr->Z);
+    }
+
+    Vec3 testZ;
+    rtw_vec_pop_back(&vec, &testZ);
+
+    printf("TEST Z: %d %d %d\n", testZ.X, testZ.Y, testZ.Z);
+    for (int i = 0; i < vec.len; ++i) {
+        ptr = rtw_vec_get(&vec, i);
+        printf("Vec: %d %d %d\n", ptr->X, ptr->Y, ptr->Z);
+    }
+
+    return 0;
 }
-
-void bench_stack() {
-    rtw_str s1, s2;
-    rtw_str_from("selemesdkjskdjskdskd sdkjskdkjsd", &s1);
-    rtw_str_from(" aleme", &s2);
-
-    rtw_str_concat(&s1, &s2);
-
-    printf("%s\n", rtw_str_data(&s1));
-}
-
-int main() { bench_stack(); }

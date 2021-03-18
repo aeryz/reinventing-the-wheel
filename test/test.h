@@ -1,7 +1,7 @@
 #include <string.h>
 
 #define RTW_TEST_NAME(X)
-#define RTW_TEST(X) rtw_test_res_t X()
+#define TIM_TEST(X) rtw_test_res_t X()
 
 typedef struct {
     const char *file;
