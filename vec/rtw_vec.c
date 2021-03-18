@@ -12,8 +12,6 @@ rtw_vec rtw_vec_init(size_t elem_len) {
 }
 
 int rtw_vec_with_capacity(rtw_vec *vector, size_t capacity, size_t elem_len) {
-    if (vector == NULL)
-        return -1;
     vector->data = (void *)malloc(capacity * elem_len);
     if (vector->data == NULL)
         return -1;
@@ -24,8 +22,6 @@ int rtw_vec_with_capacity(rtw_vec *vector, size_t capacity, size_t elem_len) {
 }
 
 int rtw_vec_push_back(rtw_vec *self, const void *data) {
-    if (!self)
-        return -1;
     int err;
     if (!self->data || !self->capacity)
         if ((err = rtw_vec_with_capacity(self, 8, self->elem_len)))
@@ -45,10 +41,10 @@ int rtw_vec_push_back(rtw_vec *self, const void *data) {
 }
 
 int rtw_vec_pop_back(rtw_vec *self, void *out) {
-    if (!self || !self->data || !self->len)
+    if (!self->data || !self->len)
         return -1;
-    if (memcpy(out, self->data + (self->len - 1)* self->elem_len, self->elem_len) <
-        0)
+    if (memcpy(out, self->data + (self->len - 1) * self->elem_len,
+               self->elem_len) < 0)
         return -1;
     self->len--;
     return 0;
@@ -61,22 +57,18 @@ void *rtw_vec_get(rtw_vec *self, const size_t index) {
     return &self->data[index * self->elem_len];
 }
 
-int rtw_vec_reserve(rtw_vec *self, const size_t len) {
-    if (!self)
-        return -1;
-    if (len <= self->capacity)
+int rtw_vec_reserve(rtw_vec *self, const size_t count) {
+    if (count <= self->capacity)
         return 0;
-    void *new_ptr = (void *)realloc(self->data, len * self->elem_len);
+    void *new_ptr = (void *)realloc(self->data, count * self->elem_len);
     if (new_ptr == NULL)
         return -1;
     self->data = new_ptr;
-    self->capacity = len;
+    self->capacity = count;
     return 0;
 }
 
 int rtw_vec_shrink_to_fit(rtw_vec *self) {
-    if (!self)
-        return -1;
     if (self->len >= self->capacity) {
         return 0;
     }
@@ -88,28 +80,23 @@ int rtw_vec_shrink_to_fit(rtw_vec *self) {
     return 0;
 }
 
-int rtw_vec_insert(rtw_vec *self, const void *elems, size_t len) {
+int rtw_vec_insert(rtw_vec *self, const void *elems, size_t count) {
     int rc = 0;
-    for (size_t i = 0; i < len; ++i)
+    for (size_t i = 0; i < count; ++i)
         if ((rc = rtw_vec_push_back(self, elems + i * self->elem_len)))
             return rc;
     return rc;
 }
 
 int rtw_vec_extend(rtw_vec *self, const rtw_vec *other) {
-    if (!other)
-        return -1;
     int rc = 0;
     return rtw_vec_insert(self, other->data, other->len);
 }
 
-int rtw_vec_clear(rtw_vec *self, unsigned shred) {
-    if (!self)
-        return -1;
+void rtw_vec_clear(rtw_vec *self, unsigned shred) {
     if (shred)
         memset(self->data, 0, self->capacity * self->elem_len);
     self->len = 0;
-    return 0;
 }
 
 void *rtw_vec_data(rtw_vec *self) {

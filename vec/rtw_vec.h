@@ -9,26 +9,127 @@ typedef struct {
     size_t elem_len;
 } rtw_vec;
 
+/**
+ * Creates an empty vector without any allocation
+ *
+ * @param elem_len Size of the data unit that the vector holds
+ */
 rtw_vec rtw_vec_init(size_t elem_len);
 
+/**
+ * Creates an empty vector by allocating 'capacity' * 'elem_len' bytes.
+ *
+ * @param vector   Pointer to output vector
+ * @param capacity Count of the element capacity
+ * @param elem_len Size of the data unit that the vector holds
+ *
+ * @return 0 on success, -1 on error
+ */
 int rtw_vec_with_capacity(rtw_vec *vector, size_t capacity, size_t elem_len);
 
+/**
+ * Adds the data pointed by 'data' to end of the vector.
+ *
+ * If the capacity is exhausted, the vector will double its size and copy its
+ * items to the new location.
+ *
+ * @param self Pointer to this vector.
+ * @param data Pointer to data that will be inserted.
+ *
+ * @return 0 on success, -1 on error
+ */
 int rtw_vec_push_back(rtw_vec *self, const void *data);
 
+/**
+ * Pops the last item from 'self' and writes it to 'out'.
+ *
+ * @param self Pointer to this vector
+ * @param out  Pointer to the output data
+ *
+ * @return -1 if 'self' is empty, otherwise 0
+ */
 int rtw_vec_pop_back(rtw_vec *self, void *out);
 
+/**
+ * Returns a pointer to the element at 'index'.
+ *
+ * @param self  Pointer to this vector.
+ * @param index Index of the element.
+ *
+ * @return NULL if 'index' is out of bounds
+ */
 void *rtw_vec_get(rtw_vec *self, const size_t index);
 
-int rtw_vec_reserve(rtw_vec *self, const size_t len);
+/**
+ * Reserves enough memory to hold 'len' elements.
+ *
+ * If 'len' is smaller than the current capacity, the function does nothing.
+ * Otherwise, it re-allocates the memory to hold exactly 'len' elements.
+ *
+ * @param self  Pointer to this vector.
+ * @param count Count of the element capacity.
+ *
+ * @return 0 on success, -1 on error.
+ */
+int rtw_vec_reserve(rtw_vec *self, const size_t count);
 
+/**
+ * Shrinks the allocation to be able to hold exactly the amount of elements that
+ * the vector currently contains.
+ *
+ * This function re-allocates the memory if it is needed (in most cases it is).
+ *
+ * @param self Pointer to this vector.
+ *
+ * @return 0 on success, -1 on error.
+ */
 int rtw_vec_shrink(rtw_vec *self);
 
-int rtw_vec_insert(rtw_vec *self, const void *elems, size_t len);
+/**
+ * Pushes back 'count' elements starting from 'elems' pointer
+ *
+ * @param self  Pointer to this vector.
+ * @param elems Pointer to the beginning of the elements to add.
+ * @param count Count of elements to be added.
+ *
+ * @return 0 on success, -1 on error.
+ */
+int rtw_vec_insert(rtw_vec *self, const void *elems, size_t count);
 
+/**
+ * Concatenates the 'other's data with 'self'.
+ *
+ * This function may require re-allocation if the capacity is exhausted.
+ *
+ * @param self  Pointer to this vector.
+ * @param other Pointer to the vector to be concatenated to 'self'.
+ *
+ * @return 0 on success, -1 on error.
+ */
 int rtw_vec_extend(rtw_vec *self, const rtw_vec *other);
 
-int rtw_vec_clear(rtw_vec *self, unsigned shred);
+/**
+ * Clears the data of the vector.
+ *
+ * If 'shred' is false, the function just sets the length to zero. Otherwise the
+ * allocated memory is overwritten with 0.
+ *
+ * @param self  Pointer to this vector.
+ * @param shred Indicator to overwrite the allocated memory of the vector or
+ * not.
+ *
+ * @return 0 on success,
+ */
+void rtw_vec_clear(rtw_vec *self, unsigned shred);
 
-void * rtw_vec_data(rtw_vec *self);
+
+/**
+ * Returns a pointer to the inner data.
+ *
+ * @param self Pointer to this vector.
+ *
+ * @return Pointer to the inner data.
+ */
+void *rtw_vec_data(rtw_vec *self);
 
 void rtw_vec_debug(const rtw_vec *self);
