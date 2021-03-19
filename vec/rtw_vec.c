@@ -68,7 +68,7 @@ int rtw_vec_reserve(rtw_vec *self, const size_t count) {
     return 0;
 }
 
-int rtw_vec_shrink_to_fit(rtw_vec *self) {
+int rtw_vec_shrink(rtw_vec *self) {
     if (self->len >= self->capacity) {
         return 0;
     }
