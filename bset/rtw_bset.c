@@ -45,16 +45,19 @@ int rtw_bset_search(rtw_bset *self, void *elem) {
     return 0;
 }
 
-void rtw_bset_free(rtw_bset *self) {
-    if (self != NULL) {
-        if (self->element != NULL)
-            free(self->element);
-        free(self);
-    }
+void rtw_bset_free_(rtw_bset_elem_ *elem) {
+    if (NULL == elem)
+        return;
+    rtw_bset_free_(elem->left);
+    rtw_bset_free_(elem->right);
+    free(elem);
 }
+
+void rtw_bset_free(rtw_bset *self) { rtw_bset_free_(self->element); }
 
 rtw_bset rtw_bset_init(rtw_bset_cmp_fn comp_func) {
     rtw_bset set;
     set.comp_func = comp_func;
+    set.element = NULL;
     return set;
 }
