@@ -132,4 +132,19 @@ void rtw_vec_clear(rtw_vec *self, unsigned shred);
  */
 void *rtw_vec_data(rtw_vec *self);
 
+
+/**
+ * Sorts the array in ascending order with quick sort approach
+ *
+ * @param self Pointer to this vector
+ * @param cmp_fn Is function pointer to sort our array, comparasion function.
+ *      It takes 2 parameters, left hand side and right hand side.
+ *      It returns -1 if right hand side is greater than left hand side
+ *      It returns 1 if right hand side is smaller than left hand side
+ *      It returns 0 if two value is same.
+ * 
+ * @return -1 if 'self' is empty, otherwise 0
+ */
+int rtw_vec_sort(rtw_vec *self, int(*cmp_fn)(const void *, const void *));
+
 void rtw_vec_debug(const rtw_vec *self);
