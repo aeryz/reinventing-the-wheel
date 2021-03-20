@@ -107,23 +107,34 @@ void *rtw_vec_data(rtw_vec *self) {
 
 int partition_(rtw_vec *self, int l, int r, int(*cmp_fn)(const void *, const void *)){
 
-    int pivotIndex = l + (r - l) / 2;
+    int pivotIndex = l + ((r - l) / 2);
     
-    int i = l, j = r;
-    int temp;
-
+    int i = l;
+    int j = r;
+    void *pivotValue = rtw_vec_get(self, pivotIndex);
+    
     while(i <= j){
-        while(cmp_fn(rtw_vec_get(self,i), rtw_vec_get(self, pivotIndex)) == -1)i++;
+        while(cmp_fn(rtw_vec_get(self,i), pivotValue) == -1) i++;
         
-        while(cmp_fn(rtw_vec_get(self,j), rtw_vec_get(self, pivotIndex)) == 1)j--;
+        while(cmp_fn(rtw_vec_get(self,j), pivotValue) == 1) j--;
         
         if(i <= j){
             void* temp = malloc(sizeof(self->elem_len));
-
             memcpy(temp, self->data + i * self->elem_len, self->elem_len);
             memcpy(self->data + i * self->elem_len, self->data + j * self->elem_len , self->elem_len);
             memcpy(self->data + j * self->elem_len, temp , self->elem_len);
             
+            if(i == pivotIndex)
+            {
+                pivotValue = rtw_vec_get(self, j);
+            }
+            else if(j == pivotIndex)
+            {
+                pivotValue = rtw_vec_get(self, i);
+            }
+            free(temp);
+            
+
             i++;
             j--;
         }
