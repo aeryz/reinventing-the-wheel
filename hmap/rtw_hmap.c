@@ -1,10 +1,12 @@
 #include "rtw_hmap.h"
 #include <string.h>
 
-rtw_hmap rtw_hmap_init(rtw_hmap_hash_fn hash_func, rtw_hmap_cmp_fn comp_func) {
+rtw_hmap rtw_hmap_init(rtw_hmap_hash_fn hash_func, rtw_hmap_cmp_fn comp_func,
+                       size_t value_len) {
     rtw_hmap map;
     map.hash_func = hash_func;
     map.comp_func = comp_func;
+    map.data = rtw_vec_init(value_len);
 
     memset(map.elements, 0, sizeof(map.elements));
 
@@ -49,15 +51,15 @@ int rtw_hmap_get(rtw_hmap *map, void *key, void *out_value,
 }
 
 void rtw_hmap_insert(rtw_hmap *map, void *key, void *data) {
-    rtw_hmap_elem_ *item = (rtw_hmap_elem_ *)malloc(sizeof(rtw_hmap_elem_));
-
-    item->key = key;
-    item->data = data;
-    item->next = NULL;
     int index = map->hash_func(key);
 
     rtw_hmap_elem_ *last = map->elements[index];
     if (last == NULL) {
+        rtw_hmap_elem_ *item = (rtw_hmap_elem_ *)malloc(sizeof(rtw_hmap_elem_));
+        item->key = key;
+        rtw_vec_push_back(&map->data, data);
+        memcpy(item->data, data, map->value_len);
+        item->next = NULL;
         map->elements[index] = item;
         map->elements[index]->next = NULL;
         return;

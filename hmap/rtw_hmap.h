@@ -1,3 +1,4 @@
+#include "../vec/rtw_vec.h"
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -18,13 +19,16 @@ typedef struct {
     rtw_hmap_hash_fn hash_func;
     rtw_hmap_cmp_fn comp_func;
     rtw_hmap_elem_ *elements[RTW_HMAP_BUCKET_SIZE_];
+    rtw_vec data;
+    size_t value_len;
 } rtw_hmap;
 
-rtw_hmap rtw_hmap_init(rtw_hmap_hash_fn hash_func, rtw_hmap_cmp_fn comp_func);
+rtw_hmap rtw_hmap_init(rtw_hmap_hash_fn hash_func, rtw_hmap_cmp_fn comp_func, size_t value_len);
 
 int rtw_hmap_del(rtw_hmap *map, void *key);
 
-int rtw_hmap_get(rtw_hmap *map, void *key, void *out_value, size_t out_value_size);
+int rtw_hmap_get(rtw_hmap *map, void *key, void *out_value,
+                 size_t out_value_size);
 
 void rtw_hmap_insert(rtw_hmap *map, void *key, void *data);
 

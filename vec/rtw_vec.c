@@ -156,3 +156,10 @@ int rtw_vec_sort(rtw_vec *self, int (*cmp_fn)(const void *, const void *)) {
 
     return 0;
 }
+
+void *rtw_vec_last(rtw_vec *self) {
+    if (!self->data || 0 == self->len)
+        return NULL;
+    else
+        return rtw_vec_get(self, self->len - 1);
+}
