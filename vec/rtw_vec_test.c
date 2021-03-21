@@ -1,4 +1,3 @@
-#include "str/rtw_str.h"
 #include "vec/rtw_vec.h"
 #include <stdio.h>
 #include <unistd.h>
@@ -171,8 +170,6 @@ int main() {
     else{
         printf("value %d can not deleted, it doesn't exists.\n", data_to_be_deleted2);
     }
-
-
 
     return 0;
 }
