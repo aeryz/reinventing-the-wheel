@@ -146,5 +146,3 @@ void *rtw_vec_data(rtw_vec *self);
  * @return -1 if 'self' is empty, otherwise 0
  */
 int rtw_vec_sort(rtw_vec *self, int(*cmp_fn)(const void *, const void *));
-
-void rtw_vec_debug(const rtw_vec *self);
