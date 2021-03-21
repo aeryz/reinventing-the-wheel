@@ -28,13 +28,27 @@ int randint(int n) {
   }
 }
 
-int personal_comp_func_int(const Vec3 *lhs, const Vec3 *rhs){
+int personal_comp_func_vec(const Vec3 *lhs, const Vec3 *rhs){
     int totalLHS = lhs->X + lhs->Y + lhs->Z;
     int totalRHS = rhs->X + rhs->Y + rhs->Z;
     if(totalLHS > totalRHS)
         return 1;
     else if(totalLHS < totalRHS)
         return -1;
+    return 0;
+}
+int personal_comp_func_int(const void *lhs, const void *rhs){
+    int left = *(int*)lhs;
+    int right = *(int*)rhs;
+
+    if(left > right)
+    {
+        return 1;
+    }
+    else if(left < right)
+    {
+        return -1;
+    }
     return 0;
 }
 
@@ -73,8 +87,8 @@ int main() {
     
 
     printf("----------TEST SORT FUNCTION----------\n");
-    int (*my_comp_func_int)(const Vec3*, const Vec3*);
-    my_comp_func_int = &personal_comp_func_int;
+    int (*my_comp_func_vec)(const Vec3*, const Vec3*);
+    my_comp_func_vec = &personal_comp_func_vec;
     
     Vec3 vectors[20];
     rtw_vec vec2 = rtw_vec_init(sizeof(Vec3));
@@ -85,14 +99,44 @@ int main() {
         vectors[i].Z = randint(30);
         rtw_vec_push_back(&vec2, &vectors[i]);
     }
+    printf("--before_sort vec3--\n");
+    for(int i = 0; i < 20; i++){
+        Vec3 *res = (Vec3 *)rtw_vec_get(&vec2, i);
+        printf("x:%d, y:%d, z:%d, total:%d\n", res->X, res->Y, res->Z, res->X+res->Y+res->Z);
+    }
+    printf("\n\n--after_sort vec3--\n");
     
-    
-    rtw_vec_sort(&vec2, my_comp_func_int);
+    rtw_vec_sort(&vec2, my_comp_func_vec);
 
     for(int i = 0; i < 20; i++){
         Vec3 *res = (Vec3 *)rtw_vec_get(&vec2, i);
         printf("x:%d, y:%d, z:%d, total:%d\n", res->X, res->Y, res->Z, res->X+res->Y+res->Z);
     }
+    
+    int (*my_comp_func_int)(const int, const int);
+    my_comp_func_int = &personal_comp_func_int;
+
+
+    rtw_vec vec3 = rtw_vec_init(sizeof(int));
+    for(int i = 0; i < 45; i++){
+        int data = randint(30);
+        rtw_vec_push_back(&vec3, &data);
+    }
+
+    printf("--before_sort int_arr--\n");
+
+    for(int i = 0; i < 45; i++){
+        printf("total:%d\n", *(int*)rtw_vec_get(&vec3, i));
+    }
+    printf("--after_sort int_arr--\n");
+
+    rtw_vec_sort(&vec3, my_comp_func_int);
+
+    for(int i = 0; i < 45; i++){
+        printf("total:%d\n", *(int*)rtw_vec_get(&vec3, i));
+    }
+
+
     return 0;
 }
 

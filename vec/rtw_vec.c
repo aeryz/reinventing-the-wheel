@@ -105,50 +105,54 @@ void *rtw_vec_data(rtw_vec *self) {
     return self->data;
 }
 
-int partition_(rtw_vec *self, int l, int r, int(*cmp_fn)(const void *, const void *)){
+int partition_(rtw_vec *self, int l, int r,
+               int (*cmp_fn)(const void *, const void *)) {
+    unsigned char temp[self->elem_len / sizeof(char)];
 
-    int pivotIndex = l + (r - l) / 2;
-    
-    int i = l, j = r;
-    int temp;
+    int pivot_index = l + ((r - l) / 2);
 
-    while(i <= j){
-        while(cmp_fn(rtw_vec_get(self,i), rtw_vec_get(self, pivotIndex)) == -1)i++;
-        
-        while(cmp_fn(rtw_vec_get(self,j), rtw_vec_get(self, pivotIndex)) == 1)j--;
-        
-        if(i <= j){
-            void* temp = malloc(sizeof(self->elem_len));
+    int i = l;
+    int j = r;
+    void *pivot_value = rtw_vec_get(self, pivot_index);
 
+    while (i <= j) {
+        while (cmp_fn(rtw_vec_get(self, i), pivot_value) == -1)
+            i++;
+
+        while (cmp_fn(rtw_vec_get(self, j), pivot_value) == 1)
+            j--;
+
+        if (i <= j) {
             memcpy(temp, self->data + i * self->elem_len, self->elem_len);
-            memcpy(self->data + i * self->elem_len, self->data + j * self->elem_len , self->elem_len);
-            memcpy(self->data + j * self->elem_len, temp , self->elem_len);
-            
+            memcpy(self->data + i * self->elem_len,
+                   self->data + j * self->elem_len, self->elem_len);
+            memcpy(self->data + j * self->elem_len, temp, self->elem_len);
+
+            if (i == pivot_index) {
+                pivot_value = rtw_vec_get(self, j);
+            } else if (j == pivot_index) {
+                pivot_value = rtw_vec_get(self, i);
+            }
+
             i++;
             j--;
         }
     }
     return i;
-
 }
-void quicksort_(rtw_vec *self, int l, int r, int(*cmp_fn)(const void *, const void *)){
-    if(l<r){
+void quicksort_(rtw_vec *self, int l, int r,
+                int (*cmp_fn)(const void *, const void *)) {
+    if (l < r) {
         int pivotIndex = partition_(self, l, r, cmp_fn);
-        quicksort_(self, l, pivotIndex -1, cmp_fn);
+        quicksort_(self, l, pivotIndex - 1, cmp_fn);
         quicksort_(self, pivotIndex, r, cmp_fn);
     }
-
-
 }
-int rtw_vec_sort(rtw_vec *self, int(*cmp_fn)(const void *, const void *)){
+int rtw_vec_sort(rtw_vec *self, int (*cmp_fn)(const void *, const void *)) {
     if (!self->data || !self->len)
         return -1;
-    
+
     quicksort_(self, 0, self->len - 1, cmp_fn);
 
     return 0;
-
 }
-
-
-void rtw_vec_debug(const rtw_vec *self) {}
