@@ -1,4 +1,3 @@
-#include "str/rtw_str.h"
 #include "vec/rtw_vec.h"
 #include <stdio.h>
 #include <unistd.h>
@@ -35,6 +34,11 @@ int personal_comp_func_vec(const Vec3 *lhs, const Vec3 *rhs){
         return 1;
     else if(totalLHS < totalRHS)
         return -1;
+    return 0;
+}
+int personal_comp_func_delete_value(const void *lhs, const void *rhs){
+    if(*(int *) lhs == *(int *) rhs)
+        return 1;
     return 0;
 }
 int personal_comp_func_int(const void *lhs, const void *rhs){
@@ -116,26 +120,56 @@ int main() {
     int (*my_comp_func_int)(const int, const int);
     my_comp_func_int = &personal_comp_func_int;
 
-
+    
     rtw_vec vec3 = rtw_vec_init(sizeof(int));
-    for(int i = 0; i < 45; i++){
+    for(int i = 0; i < 15; i++){
         int data = randint(30);
         rtw_vec_push_back(&vec3, &data);
     }
 
     printf("--before_sort int_arr--\n");
 
-    for(int i = 0; i < 45; i++){
+    for(int i = 0; i < vec3.len; i++){
         printf("total:%d\n", *(int*)rtw_vec_get(&vec3, i));
     }
     printf("--after_sort int_arr--\n");
 
     rtw_vec_sort(&vec3, my_comp_func_int);
-
-    for(int i = 0; i < 45; i++){
+    
+    for(int i = 0; i < vec3.len; i++){
         printf("total:%d\n", *(int*)rtw_vec_get(&vec3, i));
     }
 
+    printf("--delete index--\n");
+    if(rtw_vec_delete_index(&vec3, 3) != -1){
+        printf("deleted index 3 successfuly.\n");
+    }
+    for(int i = 0; i < vec3.len; i++){
+        printf("total:%d\n", *(int*)rtw_vec_get(&vec3, i));
+    }
+
+    printf("--delete value(not all)--\n");
+    int data_to_be_deleted = 17;
+
+    if(rtw_vec_delete_data(&vec3, &data_to_be_deleted, &personal_comp_func_delete_value) != -1){
+        printf("deleted value %d successfuly\n", data_to_be_deleted);
+        for(int i = 0; i < vec3.len; i++)
+            printf("total:%d\n", *(int*)rtw_vec_get(&vec3, i));
+    }
+    else{
+        printf("value %d can not deleted, it doesn't exists.\n", data_to_be_deleted);
+    }
+
+    int data_to_be_deleted2 = 45;
+    
+    if(rtw_vec_delete_data(&vec3, &data_to_be_deleted2, &personal_comp_func_delete_value) != -1){
+        printf("deleted value %d successfuly\n", data_to_be_deleted2);
+        for(int i = 0; i < vec3.len; i++)
+            printf("total:%d\n", *(int*)rtw_vec_get(&vec3, i));
+    }
+    else{
+        printf("value %d can not deleted, it doesn't exists.\n", data_to_be_deleted2);
+    }
 
     return 0;
 }

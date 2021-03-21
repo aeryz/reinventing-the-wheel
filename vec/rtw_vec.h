@@ -122,7 +122,6 @@ int rtw_vec_extend(rtw_vec *self, const rtw_vec *other);
  */
 void rtw_vec_clear(rtw_vec *self, unsigned shred);
 
-
 /**
  * Returns a pointer to the inner data.
  *
@@ -131,7 +130,6 @@ void rtw_vec_clear(rtw_vec *self, unsigned shred);
  * @return Pointer to the inner data.
  */
 void *rtw_vec_data(rtw_vec *self);
-
 
 /**
  * Sorts the array in ascending order with quick sort approach
@@ -142,7 +140,38 @@ void *rtw_vec_data(rtw_vec *self);
  *      It returns -1 if right hand side is greater than left hand side
  *      It returns 1 if right hand side is smaller than left hand side
  *      It returns 0 if two value is same.
- * 
+ *
  * @return -1 if 'self' is empty, otherwise 0
  */
-int rtw_vec_sort(rtw_vec *self, int(*cmp_fn)(const void *, const void *));
+int rtw_vec_sort(rtw_vec *self, int (*cmp_fn)(const void *, const void *));
+
+/**
+ * Retuns the pointer to the last element.
+ *
+ * @param self Pointer to this vector
+ *
+ * @return if size is 0, returns NULL otherwise pointer to the last element i
+ */
+
+void *rtw_vec_last(rtw_vec *self);
+
+
+/**
+ * Deletes an element with given index.
+ *
+ * @param self Pointer to this vector
+ * @param index Index of the element to be deleted
+ * @return if deletion operation is success it returns 1, otherwise it returns 0.
+ */
+int rtw_vec_delete_index(rtw_vec *self, const size_t index);
+
+
+/**
+ * Deletes an element with given data.
+ *
+ * @param self Pointer to this vector
+ * @param data Data of the variable to be deleted.
+ * @param cmp_fn Is function pointer to compare datas. It should return 1 if datas are same, otherwise 0. 
+ * @return if deletion operation is success it returns 1, otherwise it returns 0.
+ */
+int rtw_vec_delete_data(rtw_vec *self, const void *data, int (*cmp_fn)(const void *, const void *));
