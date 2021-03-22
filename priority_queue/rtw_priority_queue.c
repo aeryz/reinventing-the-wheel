@@ -1,4 +1,4 @@
-#include "priority_queue.h"
+#include "rtw_priority_queue.h"
 #include "assert.h"
 
 rtw_priority_queue rtw_priority_queue_init(size_t elem_len, int (*cmp_fn)(const void *, const void *)){
@@ -20,6 +20,10 @@ rtw_priority_queue rtw_priority_queue_init(size_t elem_len, int (*cmp_fn)(const 
 
 int rtw_priority_queue_top(rtw_priority_queue *self, void *out){
     return rtw_vec_pop_back(&self->vec, out);
+}
+
+int rtw_priority_queue_shrink(rtw_priority_queue *self){
+    return rtw_vec_shrink(&self->vec);
 }
 
 int rtw_priority_queue_empty(rtw_priority_queue *self){

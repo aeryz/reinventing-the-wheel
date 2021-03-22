@@ -55,3 +55,16 @@ int rtw_priority_queue_size(rtw_priority_queue *self);
  * @return 0 on success, -1 on error
  */
 int rtw_priority_queue_push(rtw_priority_queue *self, const void *data);
+
+
+/**
+ * Shrinks the allocation to be able to hold exactly the amount of elements that
+ * the vector inside queue currently contains.
+ *
+ * This function re-allocates the memory if it is needed (in most cases it is).
+ *
+ * @param self Pointer to this queue.
+ *
+ * @return 0 on success, -1 on error.
+ */
+int rtw_priority_queue_shrink(rtw_priority_queue *self);

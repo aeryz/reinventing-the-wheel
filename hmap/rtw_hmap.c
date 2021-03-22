@@ -6,7 +6,7 @@ rtw_hmap rtw_hmap_init(rtw_hmap_hash_fn hash_func, rtw_hmap_cmp_fn comp_func,
     rtw_hmap map;
     map.hash_func = hash_func;
     map.comp_func = comp_func;
-    map.data = rtw_vec_init(value_len);
+    map.value_len = value_len;
 
     memset(map.elements, 0, sizeof(map.elements));
 
@@ -14,11 +14,11 @@ rtw_hmap rtw_hmap_init(rtw_hmap_hash_fn hash_func, rtw_hmap_cmp_fn comp_func,
 }
 
 int rtw_hmap_del(rtw_hmap *map, void *key) {
-    int index = map->hash_func(key);
+    unsigned long index = map->hash_func(key);
     rtw_hmap_elem_ *curr_node = map->elements[index];
     rtw_hmap_elem_ *prev_node = NULL;
     while (curr_node != NULL) {
-        if (map->comp_func(key, curr_node->key)) {
+        if (map->comp_func(key, curr_node->key) % RTW_HMAP_BUCKET_SIZE_) {
             if (prev_node == NULL) {
                 map->elements[index] = map->elements[index]->next;
                 free(curr_node);
@@ -36,13 +36,12 @@ int rtw_hmap_del(rtw_hmap *map, void *key) {
     return 0;
 }
 
-int rtw_hmap_get(rtw_hmap *map, void *key, void *out_value,
-                 size_t out_value_len) {
-    int index = map->hash_func(key);
+int rtw_hmap_get(rtw_hmap *map, void *key, void *out_value) {
+    unsigned long index = map->hash_func(key);
     rtw_hmap_elem_ *last = map->elements[index];
     while (NULL != last) {
-        if (map->comp_func(key, last->key)) {
-            memcpy(out_value, last->data, out_value_len);
+        if (map->comp_func(key, last->key) % RTW_HMAP_BUCKET_SIZE_) {
+            memcpy(out_value, &last->data, map->value_len);
             return 1;
         }
         last = last->next;
@@ -51,30 +50,34 @@ int rtw_hmap_get(rtw_hmap *map, void *key, void *out_value,
 }
 
 void rtw_hmap_insert(rtw_hmap *map, void *key, void *data) {
-    int index = map->hash_func(key);
-
+    unsigned long index = map->hash_func(key);
     rtw_hmap_elem_ *last = map->elements[index];
     if (last == NULL) {
         rtw_hmap_elem_ *item = (rtw_hmap_elem_ *)malloc(sizeof(rtw_hmap_elem_));
         item->key = key;
-        rtw_vec_push_back(&map->data, data);
+
+        item->data = malloc(map->value_len);
         memcpy(item->data, data, map->value_len);
+
         item->next = NULL;
         map->elements[index] = item;
-        map->elements[index]->next = NULL;
         return;
     }
     for (;;) {
-        if (map->comp_func(key, last->key)) {
-            free(item);
-            last->data = data;
+        if (map->comp_func(key, last->key) % RTW_HMAP_BUCKET_SIZE_) {
+            memcpy(last->data, data, map->value_len);
             return;
         }
         if (last->next == NULL)
             break;
         last = last->next;
     }
-    last->next = item;
+    last->next = (rtw_hmap_elem_ *)malloc(sizeof(rtw_hmap_elem_));
+    last->next->data = malloc(map->value_len);
+
+    memcpy(last->next->data, data, map->value_len);
+    last->next->key = key;
+    last->next->next = NULL;
 }
 
 void rtw_hmap_free(rtw_hmap *map) {

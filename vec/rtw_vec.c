@@ -164,37 +164,35 @@ void *rtw_vec_last(rtw_vec *self) {
         return rtw_vec_get(self, self->len - 1);
 }
 
-int rtw_vec_delete_index(rtw_vec *self, const size_t index){
+int rtw_vec_delete_index(rtw_vec *self, const size_t index) {
     if (!self->data || 0 == self->len || index >= self->len)
         return -1;
-    if(index == self->len-1){
-        if(index == 0)
+    if (index == self->len - 1) {
+        if (index == 0)
             rtw_vec_clear(self, 0);
-        else{
+        else {
             unsigned char temp[self->elem_len / sizeof(char)];
             if (memcpy(temp, self->data + (self->len - 1) * self->elem_len,
-                    self->elem_len) < 0)
+                       self->elem_len) < 0)
                 return -1;
         }
-    }
-    else{
-        if (memcpy(self->data + (index) * self->elem_len, self->data + (index+1) * self->elem_len,
-                self->elem_len*3) < 0)
+    } else {
+        if (memcpy(self->data + (index)*self->elem_len,
+                   self->data + (index + 1) * self->elem_len,
+                   self->elem_len * 3) < 0)
             return -1;
-    
     }
     self->len--;
     return 0;
 }
 
-
-int rtw_vec_delete_data(rtw_vec *self, const void *data, int (*cmp_fn)(const void *, const void *) ){
+int rtw_vec_delete_data(rtw_vec *self, const void *data,
+                        int (*cmp_fn)(const void *, const void *)) {
     if (!self->data || 0 == self->len)
         return -1;
-    for(int i = 0; i < self->len; i++)
-    {
-        if(cmp_fn(data,rtw_vec_get(self, i))){
-            if(rtw_vec_delete_index(self, i) != 0)
+    for (int i = 0; i < self->len; i++) {
+        if (cmp_fn(data, rtw_vec_get(self, i))) {
+            if (rtw_vec_delete_index(self, i) != 0)
                 return -1;
             return 0;
         }
@@ -202,6 +200,7 @@ int rtw_vec_delete_data(rtw_vec *self, const void *data, int (*cmp_fn)(const voi
     return -1;
 }
 
-int rtw_vec_delete_data_all(rtw_vec *self, const void *data){
-
+int rtw_vec_delete_data_all(rtw_vec *self, const void *data) {
+    // TODO: impl
+    return 0;
 }
