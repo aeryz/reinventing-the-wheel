@@ -17,8 +17,7 @@ typedef struct {
     rtw_hmap_hash_fn hash_func;
     rtw_hmap_cmp_fn comp_func;
     rtw_hmap_elem_ *elements[RTW_HMAP_BUCKET_SIZE_];
-    rtw_vec keys_and_values;
-    size_t value_len;
+    rtw_vec data;
     size_t key_len;
 } rtw_hmap;
 
