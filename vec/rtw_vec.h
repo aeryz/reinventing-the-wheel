@@ -177,3 +177,10 @@ int rtw_vec_delete_index(rtw_vec *self, const size_t index);
  */
 int rtw_vec_delete_data(rtw_vec *self, const void *data,
                         int (*cmp_fn)(const void *, const void *));
+
+/**
+ * Frees the allocated memory.
+ *
+ * @param self Pointer to this vector
+ */
+void rtw_vec_free(rtw_vec *self);

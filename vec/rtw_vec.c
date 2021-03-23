@@ -204,3 +204,10 @@ int rtw_vec_delete_data_all(rtw_vec *self, const void *data) {
     // TODO: impl
     return 0;
 }
+
+void rtw_vec_free(rtw_vec *self) {
+    if (self->data) {
+        free(self->data);
+        self->data = NULL;
+    }
+}
