@@ -10,7 +10,6 @@ typedef int (*rtw_hmap_cmp_fn)(const void *, const void *);
 
 typedef struct rtw_hmap_elem_s_ {
     void *key;
-    void *data;
     struct rtw_hmap_elem_s_ *next;
 } rtw_hmap_elem_;
 
@@ -18,7 +17,8 @@ typedef struct {
     rtw_hmap_hash_fn hash_func;
     rtw_hmap_cmp_fn comp_func;
     rtw_hmap_elem_ *elements[RTW_HMAP_BUCKET_SIZE_];
-    size_t value_len;
+    rtw_vec data;
+    size_t key_len;
 } rtw_hmap;
 
 /**
@@ -33,9 +33,10 @@ typedef struct {
  * @param hash_fn Is function pointer to hash key, hash function.
  *      It takes only one void* parameter and get hash of that value.
  *      It returns a hash value with int.
- * @param elem_len Size of the data unit that the vector holds
+ * @param key_len Size of the key that the vector holds
+ * @param value_len Size of the data that the vector holds
  */
-rtw_hmap rtw_hmap_init(rtw_hmap_hash_fn hash_fn, rtw_hmap_cmp_fn cmp_fn, size_t value_len);
+rtw_hmap rtw_hmap_init(rtw_hmap_hash_fn hash_fn, rtw_hmap_cmp_fn cmp_fn, size_t key_len, size_t value_len);
 
 
 /**
@@ -68,7 +69,6 @@ int rtw_hmap_get(rtw_hmap *self, void *key, void *out_value);
  *
  */
 void rtw_hmap_insert(rtw_hmap *self, void *key, void *data);
-
 
 /**
  * Frees allocated memory for this map.
