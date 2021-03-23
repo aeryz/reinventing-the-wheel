@@ -4,6 +4,7 @@
 // char* so we are casting void * type to char *, at the end of function we are
 // taking modular 30 because our bucket size is 30. So our key should be between
 // 0-29.
+
 unsigned long hash_func(const void *key) {
     char *my_key = (char *)key;
 
@@ -33,7 +34,7 @@ void example_str_to_int_fun() {
     // It takes 3 parameter, first one is predefined hash_func,
     // Second one is our predefined comparasion function
     // third one is sizeof our object (in this case its sizeof(int))
-    rtw_hmap map = rtw_hmap_init(&hash_func, &cmp_fun_str, sizeof(int));
+    rtw_hmap map = rtw_hmap_init(&hash_func, &cmp_fun_str, sizeof(char*) ,sizeof(int));
 
     // Lets create 3 key - value pairs.
     char *key1 = "key1";
@@ -94,7 +95,7 @@ void example_str_to_int_fun() {
         printf("key: %s deleted from hmap.\n", key3);
     else
         printf("key: %s does not exist on hmap.\n", key3);
-
+    
     // So since key does not exist on map, rtw_hmap_del returned 0.
     // To update key-value pair we just have to use insert function with
     // different value.
@@ -141,7 +142,7 @@ void example_struct_to_int_fun() {
 
     // our value is still int so third parameter is stll sizeof(int)
     rtw_hmap map =
-        rtw_hmap_init(&hash_fun_struct, &comp_fun_struct, sizeof(int));
+        rtw_hmap_init(&hash_fun_struct, &comp_fun_struct, sizeof(Square), sizeof(int));
 
     // Lets create 3 key - value pairs.
     Square s1;
@@ -213,7 +214,7 @@ void example_struct_to_int_fun() {
         printf(
             "key: '(Square)->width:%d, (Square)->height:%d' couldn't found!\n",
             s3.width, s3.height);
-
+    
     // Our key3 is in hmap, so now lets try to delete it.
     if (rtw_hmap_del(&map, &s3))
         printf(
@@ -223,7 +224,7 @@ void example_struct_to_int_fun() {
         printf("key: (Square)->width:%d, (Square)->height:%d does not exist on "
                "hmap.\n",
                s3.width, s3.height);
-
+    
     // We have deleted key3 already from map, lets try to delete it again.
     if (rtw_hmap_del(&map, &s3))
         printf("map[(Square)->width:%d, (Square)->height:%d]:%d\n", s3.width,
@@ -261,10 +262,60 @@ void example_struct_to_int_fun() {
     rtw_hmap_free(&map);
 }
 
-int main() {
+int com_fun_int(const void *lhs, const void *rhs) {
+    
+    return *(int*)lhs == *(int*)rhs;
+}
 
+// And for hash function lets take %30 of width.
+unsigned long hash_fun_int(const void *key) {
+    return *(int *)key%30;
+}
+
+
+int main() {
+    
     printf("---- example of str as key ----\n");
     example_str_to_int_fun();
     printf("\n\n---- example struct as key ----\n");
     example_struct_to_int_fun();
+    
+    
+    rtw_hmap map = rtw_hmap_init(&hash_fun_int, &com_fun_int, sizeof(int), sizeof(int));
+    int key = 3;
+    int val = 5;
+    rtw_hmap_insert(&map, &key, &val);
+    
+    int out;
+    rtw_hmap_get(&map, &key, &out);
+    printf("out :%d\n",out);
+    int key1 = 4;
+    int val1 = 12;
+    rtw_hmap_insert(&map, &key1, &val1);
+    int out1;
+    rtw_hmap_get(&map, &key1, &out1);
+    printf("out :%d\n",out1);
+
+    
+
+    int key2 = 33;
+    int val2 = 24;
+    rtw_hmap_insert(&map, &key2, &val2);
+    int out2;
+    rtw_hmap_get(&map, &key2, &out2);
+    printf("out :%d\n",out2);
+
+    int key4 = 3;
+    int val4 = 53;
+    rtw_hmap_insert(&map, &key4, &val4);
+    int out4;
+    rtw_hmap_get(&map, &key4, &out4);
+    printf("out :%d\n",out4);
+
+
+    rtw_hmap_get(&map, &key1, &out1);
+    printf("out :%d\n",out1);
+    rtw_hmap_free(&map);
+    
+    
 }
