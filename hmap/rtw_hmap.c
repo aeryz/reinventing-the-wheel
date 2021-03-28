@@ -1,11 +1,11 @@
 #include "rtw_hmap.h"
 #include <string.h>
 
-rtw_hmap rtw_hmap_init(rtw_hmap_hash_fn hash_func, rtw_hmap_cmp_fn comp_func,
+rtw_hmap rtw_hmap_init(rtw_hmap_hash_fn hash_fn, rtw_hmap_eq_fn eq_fn,
                        size_t key_len, size_t value_len) {
     rtw_hmap map;
-    map.hash_func = hash_func;
-    map.comp_func = comp_func;
+    map.hash_fn = hash_fn;
+    map.eq_fn = eq_fn;
     map.key_len = key_len;
     map.data = rtw_vec_init(key_len + value_len);
 
@@ -14,36 +14,32 @@ rtw_hmap rtw_hmap_init(rtw_hmap_hash_fn hash_func, rtw_hmap_cmp_fn comp_func,
     return map;
 }
 
-int rtw_hmap_del(rtw_hmap *map, void *key) {
-    unsigned long index = map->hash_func(key) % RTW_HMAP_BUCKET_SIZE_;
+int rtw_hmap_del(rtw_hmap *map, const void *key) {
+    unsigned long index = map->hash_fn(key) % RTW_HMAP_BUCKET_SIZE_;
+
     rtw_hmap_elem_ *curr_node = map->elements[index];
     rtw_hmap_elem_ *prev_node = NULL;
-    while (curr_node != NULL) {
-        if (map->comp_func(key, curr_node->key)) {
-            if (prev_node == NULL) {
 
-                map->elements[index] = map->elements[index]->next;
-                void *last_elem = rtw_vec_last(&map->data);
-
-                memcpy(curr_node->key, last_elem, map->key_len);
-                memcpy(curr_node->key + map->key_len, last_elem + map->key_len,
-                       map->data.elem_len - map->key_len);
-
-                free(curr_node);
-                free(prev_node);
-                return 1;
-            }
-            void *last_elem;
+    while (NULL != curr_node) {
+        if (map->eq_fn(key, curr_node->key)) {
+            char last_elem[map->data.elem_len];
             rtw_vec_pop_back(&map->data, last_elem);
+            if (1 != map->data.len) {
+                // Overwrite the deleted element's data with the last element's
+                // data. We don't delete the deleted key from the vector.
+                // Because it would be expensive. We overwrite the deleted
+                // element's data with the last element's data so that we only
+                // make 1 memcpy and no allocation.
+                memcpy(curr_node->key, last_elem, map->data.elem_len);
+            }
 
-            memcpy(curr_node->key, last_elem, map->key_len);
-            memcpy(curr_node->key + map->key_len, last_elem + map->key_len,
-                   map->data.elem_len - map->key_len);
+            if (NULL == prev_node) {
+                map->elements[index] = curr_node->next;
+            } else {
+                prev_node->next = curr_node->next;
+            }
 
-            prev_node->next = curr_node->next;
-            rtw_hmap_elem_ *temp = curr_node;
-            free(temp);
-
+            free(curr_node);
             return 1;
         }
         prev_node = curr_node;
@@ -52,13 +48,13 @@ int rtw_hmap_del(rtw_hmap *map, void *key) {
     return 0;
 }
 
-int rtw_hmap_get(rtw_hmap *map, void *key, void *out_value) {
-    unsigned long index = map->hash_func(key) % RTW_HMAP_BUCKET_SIZE_;
-    rtw_hmap_elem_ *last = map->elements[index];
+int rtw_hmap_get(const rtw_hmap *self, const void *key, void *out_value) {
+    unsigned long index = self->hash_fn(key) % RTW_HMAP_BUCKET_SIZE_;
+    rtw_hmap_elem_ *last = self->elements[index];
     while (NULL != last) {
-        if (map->comp_func(key, last->key)) {
-            memcpy(out_value, last->key + map->key_len,
-                   map->data.elem_len - map->key_len);
+        if (self->eq_fn(key, last->key)) {
+            memcpy(out_value, last->key + self->key_len,
+                   self->data.elem_len - self->key_len);
             return 1;
         }
         last = last->next;
@@ -66,30 +62,34 @@ int rtw_hmap_get(rtw_hmap *map, void *key, void *out_value) {
     return 0;
 }
 
-void rtw_hmap_insert(rtw_hmap *map, void *key, void *data) {
-    unsigned long index = map->hash_func(key) % RTW_HMAP_BUCKET_SIZE_;
+inline static rtw_hmap_elem_ *
+rtw_hmap_elem_init_(rtw_hmap *map, const void *key, const void *data) {
+    // Key and value needed to be packed in a single memory location.
+    char temp[(map->data.elem_len)];
+    memcpy(temp, key, map->key_len);
+    memcpy(temp + map->key_len, data, map->data.elem_len - map->key_len);
 
-    rtw_hmap_elem_ *last = map->elements[index];
+    rtw_vec_push_back(&map->data, temp);
+
+    rtw_hmap_elem_ *item = (rtw_hmap_elem_ *)malloc(sizeof(rtw_hmap_elem_));
+    item->next = NULL;
+    item->key = rtw_vec_last(&map->data);
+
+    return item;
+}
+
+void rtw_hmap_insert(rtw_hmap *self, const void *key, const void *data) {
+    unsigned long index = self->hash_fn(key) % RTW_HMAP_BUCKET_SIZE_;
+
+    rtw_hmap_elem_ *last = self->elements[index];
     if (last == NULL) {
-        unsigned char temp[(map->key_len + map->data.elem_len - map->key_len) /
-                           sizeof(char)];
-        memcpy(temp, key, map->key_len);
-        memcpy(temp + map->key_len, data, map->data.elem_len - map->key_len);
-
-        rtw_vec_push_back(&map->data, temp);
-
-        rtw_hmap_elem_ *item = (rtw_hmap_elem_ *)malloc(sizeof(rtw_hmap_elem_));
-        item->next = NULL;
-        item->key = map->data.data + (map->data.len - 1) * (map->data.elem_len);
-
-        map->elements[index] = item;
-
+        self->elements[index] = rtw_hmap_elem_init_(self, key, data);
         return;
     }
     for (;;) {
-        if (map->comp_func(key, last->key)) {
-            memcpy(last->key + map->key_len, data,
-                   map->data.elem_len - map->key_len);
+        if (self->eq_fn(key, last->key)) {
+            memcpy(last->key + self->key_len, data,
+                   self->data.elem_len - self->key_len);
             return;
         }
         if (last->next == NULL)
@@ -97,24 +97,15 @@ void rtw_hmap_insert(rtw_hmap *map, void *key, void *data) {
         last = last->next;
     }
 
-    unsigned char temp[(map->data.elem_len) / sizeof(char)];
-    memcpy(temp, key, map->key_len);
-    memcpy(temp + map->key_len, data, map->data.elem_len - map->key_len);
-
-    rtw_vec_push_back(&map->data, temp);
-    rtw_hmap_elem_ *item = (rtw_hmap_elem_ *)malloc(sizeof(rtw_hmap_elem_));
-    item->next = NULL;
-
-    item->key = rtw_vec_last(&map->data);
-    map->elements[index]->next = item;
+    last->next = rtw_hmap_elem_init_(self, key, data);
 }
 
-void rtw_hmap_free(rtw_hmap *map) {
-    rtw_vec_free(&map->data);
+void rtw_hmap_free(rtw_hmap *self) {
+    rtw_vec_free(&self->data);
 
     for (int i = 0; i < RTW_HMAP_BUCKET_SIZE_; i++) {
-        if (map->elements[i]) {
-            rtw_hmap_elem_ *elem = map->elements[i];
+        if (self->elements[i]) {
+            rtw_hmap_elem_ *elem = self->elements[i];
             while (elem != NULL) {
                 rtw_hmap_elem_ *tmp = elem;
                 elem = elem->next;
