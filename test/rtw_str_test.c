@@ -6,8 +6,6 @@ const char *STACK_DATA = "stack_str";
 const char *HEAP_DATA = "heap_str heap_str heap_str heap_str";
 const char *SNH_DATA = "stack_strheap_str heap_str heap_str heap_str";
 
-TIM_TEST_NAME(STR);
-
 TIM_TEST(str_from) {
     rtw_str str;
     TIM_ASSERT_EQ(rtw_str_from(STACK_DATA, &str), 0);
