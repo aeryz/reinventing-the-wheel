@@ -1,3 +1,6 @@
+#ifndef RTW_HMAP_H
+#define RTW_HMAP_H
+
 #include "../vec/rtw_vec.h"
 #include <stdio.h>
 #include <stdlib.h>
@@ -78,3 +81,5 @@ void rtw_hmap_insert(rtw_hmap *self, const void *key, const void *data);
  *
  */
 void rtw_hmap_free(rtw_hmap *self);
+
+#endif

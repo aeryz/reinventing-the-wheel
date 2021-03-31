@@ -1,3 +1,6 @@
+#ifndef RTW_VEC_H
+#define RTW_VEC_H
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -184,3 +187,5 @@ int rtw_vec_delete_data(rtw_vec *self, const void *data,
  * @param self Pointer to this vector
  */
 void rtw_vec_free(rtw_vec *self);
+
+#endif

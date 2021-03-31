@@ -1,5 +1,5 @@
-#ifndef CTL_STR
-#define CTL_STR
+#ifndef RTW_STR_H
+#define RTW_STR_H
 
 #include <stdlib.h>
 

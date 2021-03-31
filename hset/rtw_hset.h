@@ -1,3 +1,6 @@
+#ifndef RTW_HSET_H
+#define RTW_HSET_H
+
 #include "../vec/rtw_vec.h"
 #include <stdio.h>
 #include <stdlib.h>
@@ -73,3 +76,5 @@ void rtw_hset_insert(rtw_hset *self, const void *data);
  *
  */
 void rtw_hset_free(rtw_hset *self);
+
+#endif
