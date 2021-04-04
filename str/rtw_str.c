@@ -81,7 +81,7 @@ size_t rtw_str_capacity(const rtw_str *self) {
     if (HEAP_STR == self->type)
         return self->data.heap_str.capacity;
     else
-        return sizeof(self->data.heap_str);
+        return RTW_STR_SS;
 }
 
 int rtw_str_reserve(rtw_str *self, size_t n) {
@@ -98,6 +98,7 @@ int rtw_str_reserve(rtw_str *self, size_t n) {
     if (HEAP_STR == self->type && NULL != self->data.heap_str.data)
         free(self->data.heap_str.data);
     self->data.heap_str = str;
+    self->type = HEAP_STR;
     return 0;
 }
 
@@ -117,7 +118,7 @@ int rtw_str_empty(const rtw_str *self) {
     if (HEAP_STR == self->type)
         return self->data.heap_str.len == 0;
     else
-        return RTW_STR_SS == self->data.stack_str[RTW_STR_SS - 1];
+        return RTW_STR_SS - 1 == self->data.stack_str[RTW_STR_SS - 1];
 }
 
 int rtw_str_shrink_to_fit(rtw_str *self) {
@@ -144,8 +145,8 @@ char rtw_str_at(const rtw_str *self, size_t n) {
 
 int rtw_str_push_back(rtw_str *self, char c) {
     char c_str[2] = {c, '\0'};
-    rtw_str tmp = rtw_str_new();
-    tmp.data.stack_str[0] = c;
+    rtw_str tmp;
+    rtw_str_from(c_str, &tmp);
     return rtw_str_concat(self, &tmp);
 }
 
